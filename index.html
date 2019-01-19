@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<video></video>
+</body>
+<script src="face-api.min.js"></script>
+<script>
+
+const videoInput = document.createElement('video')
+videoInput.autoplay = true
+document.body.appendChild(videoInput)
+
+const imgInput = document.createElement('img')
+imgInput.src = 'Sheldon.jpg';
+document.body.appendChild(imgInput);
+
+//uncomment to change to video input
+//const input = videoInput
+const input = imgInput
+
+async function startFaceAPI(){
+	await faceapi.loadSsdMobilenetv1Model('/models');
+	await faceapi.loadFaceExpressionModel('/models');
+	console.log("faceapi object: ",faceapi.nets);
+}
+
+async function DetectFaces(){
+	let stream = await window.navigator.mediaDevices.getUserMedia({video:true, audio:true});
+	videoInput.srcObject = stream;
+	await startFaceAPI();
+	results = await faceapi.detectAllFaces(input).withFaceExpressions();
+	console.log("results: ",results);
+}
+
+DetectFaces();
+
+</script>
+
+</html>
