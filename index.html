@@ -14,13 +14,13 @@ const videoInput = document.createElement('video')
 videoInput.autoplay = true
 document.body.appendChild(videoInput)
 
-const imgInput = document.createElement('img')
-imgInput.src = 'Sheldon.jpg';
-document.body.appendChild(imgInput);
+// const imgInput = document.createElement('img')
+// imgInput.src = 'Sheldon.jpg';
+// document.body.appendChild(imgInput);
 
 //uncomment to change to video input
-//const input = videoInput
-const input = imgInput
+const input = videoInput
+//const input = imgInput
 
 async function startFaceAPI(){
 	await faceapi.loadSsdMobilenetv1Model('/models');
@@ -28,16 +28,30 @@ async function startFaceAPI(){
 	console.log("faceapi object: ",faceapi.nets);
 }
 
-async function DetectFaces(){
+async function startStream(){
 	let stream = await window.navigator.mediaDevices.getUserMedia({video:true, audio:true});
 	videoInput.srcObject = stream;
 	await startFaceAPI();
-	results = await faceapi.detectAllFaces(input).withFaceExpressions();
-	console.log("results: ",results);
 }
 
-DetectFaces();
+async function detectAllFaces(){	
+	results = await faceapi.detectSingleFace(input).withFaceExpressions();
+	let max=0,maxIndex=0;
+	results.expressions.forEach((el,index)=>{
+		if (el.probability>max){
+			max=el.probability;
+			maxIndex=index;
+		}
+	})
+	console.log("results: ",results.expressions[maxIndex]);
+}
+
+async function start(){
+	await startStream();
+	setInterval(detectAllFaces,500)
+}
+
+start()
 
 </script>
-
 </html>
